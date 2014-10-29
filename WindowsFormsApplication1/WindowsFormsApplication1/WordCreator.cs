@@ -15,7 +15,7 @@ namespace HKreporter
         Word._Application oWord;
         Word._Document oDoc;
         object oMissing = System.Reflection.Missing.Value;
-        public void create_word(DataTable dt, DataRow dr, DataTable group, List<string> group_name)
+        public void create_word(DataTable dt, DataRow dr, DataTable group, Dictionary<string, List<string>> group_dict)
         {
             object filepath = @Utils.CurrentDirectory + @"\template.doc";
             oWord = new Word.Application();
@@ -62,46 +62,97 @@ namespace HKreporter
 
             table.Cell(2, 3).Range.Text = rank_name;
             int previousRow = 3;
-            for (int i = 0; i < group.Rows.Count; i++)
+            int line = 0,  count = 1;
+            foreach(string key in group_dict.Keys)
             {
-                table.Cell(i+2, 3).Range.Rows.Add(oMissing);
-                
+                table.Cell(line + 2, 3).Range.Rows.Add(oMissing);
+
                 for (int j = 1; j < 6; j++)
                 {
-                    table.Cell(i + 3, j).Range.Font.Bold = 0;
-                    table.Cell(i + 3, j).Range.Font.Size = 10;
-                    table.Cell(i + 3, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
-                    table.Cell(i + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                    table.Cell(i + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+                    table.Cell(line + 3, j).Range.Font.Bold = 0;
+                    table.Cell(line + 3, j).Range.Font.Size = 10;
+                    table.Cell(line + 3, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
+                    table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                    table.Cell(line + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
                 }
-                
-                string key = group.Rows[i]["tz"].ToString().Trim();
-                table.Cell(i + 3, 1).Range.Text = key;
-                
-                table.Cell(i + 3, 2).Range.Text = string.Format("{0:F2}", (decimal)dr["G" + (i + 1).ToString()]);
-                table.Cell(i + 3, 3).Range.Text = string.Format("{0:F2}", (decimal)rankDR["G" + (i + 1).ToString()]);
-                table.Cell(i + 3, 4).Range.Text = string.Format("{0:F2}", (decimal)totalDR["G" + (i + 1).ToString()]);
-                table.Cell(i + 3, 5).Range.Text = string.Format("{0:F1}", (decimal)dr["PR" + (i + 1).ToString()]);
 
-                if (group_name.Contains(key))
+                table.Cell(line + 3, 1).Range.Text = key;
+                table.Cell(line + 3, 1).Range.Font.Bold = 1;
+                table.Cell(line + 3, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                previousRow = line + 3;
+                for (int j = 2; j < 6; j++)
                 {
-                    table.Cell(i + 3, 1).Range.Font.Bold = 1;
-                    table.Cell(i + 3, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                    previousRow = i + 3;
-                    for (int j = 2; j < 6; j++)
+                    table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                    table.Cell(line + 3, j).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
+                }
+
+                line++;
+                List<string> names = group_dict[key];
+                foreach (string group_name in names)
+                {
+                    table.Cell(line + 2, 3).Range.Rows.Add(oMissing);
+                    for (int j = 1; j < 6; j++)
                     {
-                        table.Cell(i + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                        table.Cell(i + 3, j).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
+                        table.Cell(line + 3, j).Range.Font.Bold = 0;
+                        table.Cell(line + 3, j).Range.Font.Size = 10;
+                        table.Cell(line + 3, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
+                        table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                        table.Cell(line + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
                     }
+                    table.Cell(line + 3, 1).Range.Text = group_name;
 
+                    table.Cell(line + 3, 2).Range.Text = string.Format("{0:F2}", (decimal)dr["G" + count.ToString()]);
+                    table.Cell(line + 3, 3).Range.Text = string.Format("{0:F2}", (decimal)rankDR["G" + count.ToString()]);
+                    table.Cell(line + 3, 4).Range.Text = string.Format("{0:F2}", (decimal)totalDR["G" + count.ToString()]);
+                    table.Cell(line + 3, 5).Range.Text = string.Format("{0:F1}", (decimal)dr["PR" + count.ToString()]);
+
+                    table.Cell(previousRow, 1).Merge(table.Cell(line + 3, 1));
+
+                    line++;
+                    count++;
                 }
-                else
-                {
 
-                    table.Cell(previousRow, 1).Merge(table.Cell(i + 3, 1));
-
-                }
             }
+            //for (int i = 0; i < group.Rows.Count; i++)
+            //{
+            //    table.Cell(i+2, 3).Range.Rows.Add(oMissing);
+                
+            //    for (int j = 1; j < 6; j++)
+            //    {
+            //        table.Cell(i + 3, j).Range.Font.Bold = 0;
+            //        table.Cell(i + 3, j).Range.Font.Size = 10;
+            //        table.Cell(i + 3, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
+            //        table.Cell(i + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+            //        table.Cell(i + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+            //    }
+                
+            //    string key = group.Rows[i]["tz"].ToString().Trim();
+            //    table.Cell(i + 3, 1).Range.Text = key;
+                
+            //    table.Cell(i + 3, 2).Range.Text = string.Format("{0:F2}", (decimal)dr["G" + (i + 1).ToString()]);
+            //    table.Cell(i + 3, 3).Range.Text = string.Format("{0:F2}", (decimal)rankDR["G" + (i + 1).ToString()]);
+            //    table.Cell(i + 3, 4).Range.Text = string.Format("{0:F2}", (decimal)totalDR["G" + (i + 1).ToString()]);
+            //    table.Cell(i + 3, 5).Range.Text = string.Format("{0:F1}", (decimal)dr["PR" + (i + 1).ToString()]);
+
+            //    if (group_name.Contains(key))
+            //    {
+            //        table.Cell(i + 3, 1).Range.Font.Bold = 1;
+            //        table.Cell(i + 3, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+            //        previousRow = i + 3;
+            //        for (int j = 2; j < 6; j++)
+            //        {
+            //            table.Cell(i + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+            //            table.Cell(i + 3, j).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
+            //        }
+
+            //    }
+            //    else
+            //    {
+
+            //        table.Cell(previousRow, 1).Merge(table.Cell(i + 3, 1));
+
+            //    }
+            //}
             
             draw(group, dr,rankDR,totalDR);
             Word.Range dist_rng = oDoc.Bookmarks.get_Item("pic").Range;
@@ -116,35 +167,81 @@ namespace HKreporter
 
             Word.Table TH_table = oDoc.Tables[3];
             previousRow = 1;
-            for (int i = 0; i < group.Rows.Count; i++)
+            line = 0;
+            count = 0;
+            foreach (string key in group_dict.Keys)
             {
-                
                 for (int j = 1; j < 3; j++)
                 {
-                    TH_table.Cell(i + 2, j).Range.Font.Bold = 0;
-                    TH_table.Cell(i + 2, j).Range.Font.Size = 10;
-                    TH_table.Cell(i + 2, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
-                    TH_table.Cell(i + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                    TH_table.Cell(i + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+                    TH_table.Cell(line + 2, j).Range.Font.Bold = 0;
+                    TH_table.Cell(line + 2, j).Range.Font.Size = 10;
+                    TH_table.Cell(line + 2, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
+                    TH_table.Cell(line + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                    TH_table.Cell(line + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
                 }
-                string key = group.Rows[i]["tz"].ToString().Trim();
-                TH_table.Cell(i + 2, 1).Range.Text = key;
-                TH_table.Cell(i + 2, 2).Range.Text = getTH(group.Rows[i]["th"].ToString().Trim());
-                if (group_name.Contains(key))
+                TH_table.Cell(line + 2, 1).Range.Text = key;
+
+                previousRow = line + 2;
+                TH_table.Cell(line + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                TH_table.Cell(line + 2, 1).Range.Font.Bold = 1;
+                TH_table.Cell(line + 2, 2).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
+
+                if (count < group.Rows.Count - 1)
+                    TH_table.Cell(line + 2, 2).Range.Rows.Add(oMissing);
+                line++;
+
+                List<string> names = group_dict[key];
+                foreach (string group_name in names)
                 {
-                    previousRow = i + 2;
-                    TH_table.Cell(i + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                    TH_table.Cell(i + 2, 1).Range.Font.Bold = 1;
-                    TH_table.Cell(i + 2, 2).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
+                    for (int j = 1; j < 3; j++)
+                    {
+                        TH_table.Cell(line + 2, j).Range.Font.Bold = 0;
+                        TH_table.Cell(line + 2, j).Range.Font.Size = 10;
+                        TH_table.Cell(line + 2, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
+                        TH_table.Cell(line + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                        TH_table.Cell(line + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+                    }
+                    TH_table.Cell(line + 2, 1).Range.Text = group_name;
+                    TH_table.Cell(line + 2, 2).Range.Text = getTH(group.Rows[count]["th"].ToString().Trim());
+                    TH_table.Cell(line + 2, 2).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                    TH_table.Cell(previousRow, 1).Merge(TH_table.Cell(line + 2, 1));
+
+                    if (count < group.Rows.Count - 1)
+                        TH_table.Cell(line + 2, 2).Range.Rows.Add(oMissing);
+
+                    line++;
+                    count++;
                 }
-                else
-                {
-                    TH_table.Cell(i + 2, 2).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                    TH_table.Cell(previousRow, 1).Merge(TH_table.Cell(i + 2, 1));
-                }
-                if(i < group.Rows.Count - 1)
-                    TH_table.Cell(i + 2, 2).Range.Rows.Add(oMissing);
             }
+            //for (int i = 0; i < group.Rows.Count; i++)
+            //{
+
+            //    for (int j = 1; j < 3; j++)
+            //    {
+            //        TH_table.Cell(i + 2, j).Range.Font.Bold = 0;
+            //        TH_table.Cell(i + 2, j).Range.Font.Size = 10;
+            //        TH_table.Cell(i + 2, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
+            //        TH_table.Cell(i + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+            //        TH_table.Cell(i + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+            //    }
+            //    string key = group.Rows[i]["tz"].ToString().Trim();
+            //    TH_table.Cell(i + 2, 1).Range.Text = key;
+            //    TH_table.Cell(i + 2, 2).Range.Text = getTH(group.Rows[i]["th"].ToString().Trim());
+            //    if (group_name.Contains(key))
+            //    {
+            //        previousRow = i + 2;
+            //        TH_table.Cell(i + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+            //        TH_table.Cell(i + 2, 1).Range.Font.Bold = 1;
+            //        TH_table.Cell(i + 2, 2).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
+            //    }
+            //    else
+            //    {
+            //        TH_table.Cell(i + 2, 2).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+            //        TH_table.Cell(previousRow, 1).Merge(TH_table.Cell(i + 2, 1));
+            //    }
+            //    if (i < group.Rows.Count - 1)
+            //        TH_table.Cell(i + 2, 2).Range.Rows.Add(oMissing);
+            //}
 
             
 

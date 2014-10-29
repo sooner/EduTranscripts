@@ -57,14 +57,14 @@ namespace HKreporter
                 if (Utils.stu_id_end.Equals("0"))
                 {
                     DataRow dr = FindRow(Utils.stu_id_start, cal._data);
-                    wc.create_word(cal.total, dr, group.dt, group.group_name);
+                    wc.create_word(cal.total, dr, group.dt, group.groups_group);
                 }
                 else
                 {
                     FindRows(Utils.stu_id_start, Utils.stu_id_end, cal._data);
                     foreach (DataRow dr in SearchIndex)
                     {
-                        wc.create_word(cal.total, dr, group.dt, group.group_name);
+                        wc.create_word(cal.total, dr, group.dt, group.groups_group);
                     }
                 }
             //}

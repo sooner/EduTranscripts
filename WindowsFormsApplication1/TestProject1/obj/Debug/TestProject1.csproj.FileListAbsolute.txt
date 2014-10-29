@@ -14,3 +14,11 @@ D:\project\vs\WindowsFormsApplication1\TestProject1\bin\Debug\WindowsFormsApplic
 D:\project\vs\WindowsFormsApplication1\TestProject1\obj\Debug\TestProject1.dll
 D:\project\vs\WindowsFormsApplication1\TestProject1\obj\Debug\TestProject1.pdb
 D:\project\vs\WindowsFormsApplication1\TestProject1\obj\Debug\ResolveAssemblyReference.cache
+D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\TestProject1\bin\Debug\TestProject1.dll
+D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\TestProject1\bin\Debug\TestProject1.pdb
+D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\TestProject1\bin\Debug\WindowsFormsApplication1.exe
+D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\TestProject1\bin\Debug\ZedGraph.dll
+D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\TestProject1\bin\Debug\WindowsFormsApplication1.pdb
+D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\TestProject1\obj\Debug\TestProject1.csprojResolveAssemblyReference.cache
+D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\TestProject1\obj\Debug\TestProject1.dll
+D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\TestProject1\obj\Debug\TestProject1.pdb

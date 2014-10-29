@@ -24,14 +24,14 @@ namespace HKreporter
         string[] groups_colnam = { "tz", "th" };
         string[] colname;
 
-        public List<string> group_name;
+        public Dictionary<string, List<string>> groups_group;
 
         public Excel_process(string filepath)
         {
             app = new Application();
             wbks = app.Workbooks;
             _wbk = wbks.Add(filepath);
-            group_name = new List<string>();
+            groups_group = new Dictionary<string, List<string>>();
 
         }
         public List<ArrayList> getData()
@@ -133,34 +133,53 @@ namespace HKreporter
             {
                 for (int iRow = 1; iRow <= iRowCount; iRow++)
                 {
-                    
+
+                    var cell = sheet.Cells[iRow, 1];
+                    if (cell.MergeCells == false && ((Range)sheet.Cells[iRow, 1]).Value2 == null)
+                        break;
                     DataRow dr = dt.NewRow();
-                    if (((Range)sheet.Cells[iRow, 2]).Value2 == null)
-                    {
-                        if (((Range)sheet.Cells[iRow, 1]).Value2 != null)
-                        {
-                            group_name.Add(((Range)sheet.Cells[iRow, 1]).Text.ToString());
-                            dr[0] = ((Range)sheet.Cells[iRow, 1]).Text.ToString();
-                            dr[1] = ((Range)sheet.Cells[iRow, 3]).Text.ToString();
-                            dt.Rows.Add(dr);
-                            continue;
-                        }
-                        else
-                            break;
-                    }
-                    
+                    string key = GetValue(iRow, 1);
                     for (int iCol = 2; iCol <= colname.Length + 1; iCol++)
                     {
 
                         range = (Range)sheet.Cells[iRow, iCol];
-                        
+                        if (iCol == 2)
+                        {
+                            if (groups_group.ContainsKey(key))
+                            {
+                                List<string> temp = groups_group[key];
+                                temp.Add(range.Text.ToString());
+                            }
+                            else
+                            {
+                                List<string> temp = new List<string>();
+                                temp.Add(range.Text.ToString());
+                                groups_group.Add(key, temp);
+                            }
+
+                        }
+                        //switch (dt.Columns[iCol].ColumnName)
+                        //{
+                        //    case "th":
+                        //        cellContent = (range.Value2 == null) ? "" : range.Text.ToString();
+                        //        break;
+                        //    case "fs":
+                        //        cellContent = (range.Value2 == null) ? "" : range.Value;
+                        //}
+
                         cellContent = (range.Value2 == null) ? "" : range.Text.ToString();
 
-                        
+                        //if (iRow == 1)  
+                        //{  
+                        //    dt.Columns.Add(cellContent);  
+                        //}  
+                        //else  
+                        //{  
                         dr[iCol - 2] = cellContent;
-                        
+                        //}  
                     }
 
+                    //if (iRow != 1)  
                     dt.Rows.Add(dr);
                 }
             }
