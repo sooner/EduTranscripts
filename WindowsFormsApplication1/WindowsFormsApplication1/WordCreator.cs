@@ -63,6 +63,12 @@ namespace HKreporter
             table.Cell(2, 3).Range.Text = rank_name;
             int previousRow = 3;
             int line = 0,  count = 1;
+
+            List<string> strong = new List<string>();
+            List<string> weak = new List<string>();
+            List<string> bad = new List<string>();
+            List<string> average = new List<string>();
+
             foreach(string key in group_dict.Keys)
             {
                 table.Cell(line + 2, 3).Range.Rows.Add(oMissing);
@@ -108,64 +114,78 @@ namespace HKreporter
 
                     table.Cell(previousRow, 1).Merge(table.Cell(line + 3, 1));
 
+                    decimal score = (decimal)dr["G" + count.ToString()] - (decimal)rankDR["G" + count.ToString()];
+                    if (score >= 0.05m)
+                        strong.Add(group_name);
+                    else if (score <= -0.01m && score > -0.05m)
+                        weak.Add(group_name);
+                    else if (score <= -0.05m)
+                        bad.Add(group_name);
+                    else if (score >= 0.01m && score < 0.05m)
+                        average.Add(group_name);
                     line++;
                     count++;
                 }
 
             }
-            //for (int i = 0; i < group.Rows.Count; i++)
-            //{
-            //    table.Cell(i+2, 3).Range.Rows.Add(oMissing);
-                
-            //    for (int j = 1; j < 6; j++)
-            //    {
-            //        table.Cell(i + 3, j).Range.Font.Bold = 0;
-            //        table.Cell(i + 3, j).Range.Font.Size = 10;
-            //        table.Cell(i + 3, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
-            //        table.Cell(i + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-            //        table.Cell(i + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
-            //    }
-                
-            //    string key = group.Rows[i]["tz"].ToString().Trim();
-            //    table.Cell(i + 3, 1).Range.Text = key;
-                
-            //    table.Cell(i + 3, 2).Range.Text = string.Format("{0:F2}", (decimal)dr["G" + (i + 1).ToString()]);
-            //    table.Cell(i + 3, 3).Range.Text = string.Format("{0:F2}", (decimal)rankDR["G" + (i + 1).ToString()]);
-            //    table.Cell(i + 3, 4).Range.Text = string.Format("{0:F2}", (decimal)totalDR["G" + (i + 1).ToString()]);
-            //    table.Cell(i + 3, 5).Range.Text = string.Format("{0:F1}", (decimal)dr["PR" + (i + 1).ToString()]);
-
-            //    if (group_name.Contains(key))
-            //    {
-            //        table.Cell(i + 3, 1).Range.Font.Bold = 1;
-            //        table.Cell(i + 3, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-            //        previousRow = i + 3;
-            //        for (int j = 2; j < 6; j++)
-            //        {
-            //            table.Cell(i + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-            //            table.Cell(i + 3, j).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
-            //        }
-
-            //    }
-            //    else
-            //    {
-
-            //        table.Cell(previousRow, 1).Merge(table.Cell(i + 3, 1));
-
-            //    }
-            //}
             
             draw(group, dr,rankDR,totalDR);
             Word.Range dist_rng = oDoc.Bookmarks.get_Item("pic").Range;
             dist_rng.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
             dist_rng.Paste();
 
-            Word.Table count_table = oDoc.Tables[2];
-            count_table.Cell(2, 2).Range.Text = getPercent((int)dt.Rows[1]["num"], (int)dt.Rows[0]["num"]);
-            count_table.Cell(2, 3).Range.Text = getPercent((int)dt.Rows[2]["num"], (int)dt.Rows[0]["num"]);
-            count_table.Cell(2, 4).Range.Text = getPercent((int)dt.Rows[3]["num"], (int)dt.Rows[0]["num"]);
-            count_table.Cell(2, 5).Range.Text = getPercent((int)dt.Rows[4]["num"], (int)dt.Rows[0]["num"]);
+            if (average.Count == group.Rows.Count)
+                WriteIntoDocument("comment", "您" + Utils.subject + "学科的高中会考成绩为" + rank_name + "。与您相同等级的学生群体相比，您对本学科应掌握的知识点和能力点都达到本等级群体的平均水平。");
+            else
+            {
+                StringBuilder sb = new StringBuilder("您" + Utils.subject + "学科的高中会考成绩为" + rank_name + "。与您相同等级的学生群体相比，您在");
+                
+                for(int i = 0; i < strong.Count; i++)
+                {
+                    sb.Append(strong[i]);
+                    if (i != strong.Count - 1)
+                        sb.Append("、");
+                }
+                if (strong.Count != 0)
+                {
+                    sb.Append("方面较强，希望保持您的优势");
+                    if (weak.Count == 0 && bad.Count == 0)
+                        sb.Append("。");
+                    else
+                        sb.Append("；");
+                }
+                for (int i = 0; i < weak.Count; i++)
+                {
+                    sb.Append(weak[i]);
+                    if (i != weak.Count - 1)
+                        sb.Append("、");
+                }
+                if (weak.Count != 0)
+                {
+                    sb.Append("方面较弱，有待进一步提升");
+                    if (bad.Count == 0)
+                        sb.Append("。");
+                    else
+                        sb.Append("；");
+                }
+                for (int i = 0; i < bad.Count; i++)
+                {
+                    sb.Append(bad[i]);
+                    if (i != bad.Count - 1)
+                        sb.Append("、");
+                }
+                if(bad.Count != 0)
+                    sb.Append("方面薄弱，需要找出原因，加强这方面的学习和提高。");
+                WriteIntoDocument("comment", sb.ToString());
+            }
 
-            Word.Table TH_table = oDoc.Tables[3];
+            //Word.Table count_table = oDoc.Tables[2];
+            //count_table.Cell(2, 2).Range.Text = getPercent((int)dt.Rows[1]["num"], (int)dt.Rows[0]["num"]);
+            //count_table.Cell(2, 3).Range.Text = getPercent((int)dt.Rows[2]["num"], (int)dt.Rows[0]["num"]);
+            //count_table.Cell(2, 4).Range.Text = getPercent((int)dt.Rows[3]["num"], (int)dt.Rows[0]["num"]);
+            //count_table.Cell(2, 5).Range.Text = getPercent((int)dt.Rows[4]["num"], (int)dt.Rows[0]["num"]);
+
+            Word.Table TH_table = oDoc.Tables[2];
             previousRow = 1;
             line = 0;
             count = 0;
@@ -213,39 +233,6 @@ namespace HKreporter
                     count++;
                 }
             }
-            //for (int i = 0; i < group.Rows.Count; i++)
-            //{
-
-            //    for (int j = 1; j < 3; j++)
-            //    {
-            //        TH_table.Cell(i + 2, j).Range.Font.Bold = 0;
-            //        TH_table.Cell(i + 2, j).Range.Font.Size = 10;
-            //        TH_table.Cell(i + 2, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
-            //        TH_table.Cell(i + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-            //        TH_table.Cell(i + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
-            //    }
-            //    string key = group.Rows[i]["tz"].ToString().Trim();
-            //    TH_table.Cell(i + 2, 1).Range.Text = key;
-            //    TH_table.Cell(i + 2, 2).Range.Text = getTH(group.Rows[i]["th"].ToString().Trim());
-            //    if (group_name.Contains(key))
-            //    {
-            //        previousRow = i + 2;
-            //        TH_table.Cell(i + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-            //        TH_table.Cell(i + 2, 1).Range.Font.Bold = 1;
-            //        TH_table.Cell(i + 2, 2).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
-            //    }
-            //    else
-            //    {
-            //        TH_table.Cell(i + 2, 2).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-            //        TH_table.Cell(previousRow, 1).Merge(TH_table.Cell(i + 2, 1));
-            //    }
-            //    if (i < group.Rows.Count - 1)
-            //        TH_table.Cell(i + 2, 2).Range.Rows.Add(oMissing);
-            //}
-
-            
-
-            
             string name = "会考成绩_" + dr["studentid"] + ".docx";
             string addr = Utils.save_adr + @"\" + name;
             oDoc.SaveAs(addr, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing);
@@ -306,8 +293,8 @@ namespace HKreporter
         {
             ZedGraphControl zgc = new ZedGraphControl();
             GraphPane myPane = zgc.GraphPane;
-            zgc.Width = 531;
-            zgc.Height = 291;
+            zgc.Width = 590;
+            zgc.Height = 300;
             List<double[]> data = new List<double[]>();
 
             string[] xlabels = new string[dt.Rows.Count];
@@ -318,8 +305,8 @@ namespace HKreporter
             AddData(rank, data, dt.Rows.Count);
             AddData(total, data, dt.Rows.Count);
 
-            AddCurve(data[0], "本人", ref myPane, SymbolType.Diamond, Color.Red);
-            AddCurve(data[1], "等第平均得分率", ref myPane, SymbolType.Square, Color.Blue);
+            AddCurve(data[0], "本人平均得分率", ref myPane, SymbolType.Diamond, Color.Red);
+            AddCurve(data[1], "同等级平均得分率", ref myPane, SymbolType.Square, Color.Blue);
             AddCurve(data[2], "总体平均得分率", ref myPane, SymbolType.Triangle, Color.DarkGreen);
 
             myPane.XAxis.Scale.TextLabels = xlabels;
@@ -327,12 +314,14 @@ namespace HKreporter
             myPane.XAxis.Type = AxisType.Text;
             myPane.XAxis.Scale.FontSpec.Size = 18;
             myPane.XAxis.Title.Text = "";
-            myPane.YAxis.Title.Text = "";
+            myPane.YAxis.Title.Text = AxisTransfer("得分率");
+            myPane.YAxis.Title.FontSpec.Angle = 90;
+            
             myPane.Title.Text = "";
 
             myPane.XAxis.Scale.Max = dt.Rows.Count+1;
             myPane.XAxis.Scale.MajorStep = 1;
-            myPane.YAxis.Scale.Max = 1.1;
+            myPane.YAxis.Scale.Max = 1.0;
             myPane.YAxis.Scale.MajorStep = 0.5;
             myPane.YAxis.Scale.Min = 0;
             myPane.YAxis.MinorTic.IsAllTics = false;
