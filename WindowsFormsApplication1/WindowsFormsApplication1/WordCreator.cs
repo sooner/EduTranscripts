@@ -43,14 +43,14 @@ namespace HKreporter
                     rank_name = "良好等级";
                     break;
                 case "pass":
-                    WriteIntoDocument("rank", "及格");
+                    WriteIntoDocument("rank", "合格");
                     rankDR = dt.Rows.Find("pass");
-                    rank_name = "及格等级";
+                    rank_name = "合格等级";
                     break;
                 case "fail":
-                    WriteIntoDocument("rank", "不及格");
+                    WriteIntoDocument("rank", "不合格");
                     rankDR = dt.Rows.Find("fail");
-                    rank_name = "不及格等级";
+                    rank_name = "不合格等级";
                     break;
                 default:
                     break;
@@ -68,36 +68,56 @@ namespace HKreporter
             List<string> weak = new List<string>();
             List<string> bad = new List<string>();
             List<string> average = new List<string>();
-
+            bool once = true;
             foreach(string key in group_dict.Keys)
             {
-                table.Cell(line + 2, 3).Range.Rows.Add(oMissing);
+                //table.Cell(line + 2, 3).Range.Rows.Add(oMissing);
+                
+                //for (int j = 1; j < 6; j++)
+                //{
+                //    table.Cell(line + 3, j).Range.Font.Bold = 0;
+                //    table.Cell(line + 3, j).Range.Font.Size = 10;
+                //    table.Cell(line + 3, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
+                //    table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                //    table.Cell(line + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+                //}
 
-                for (int j = 1; j < 6; j++)
-                {
-                    table.Cell(line + 3, j).Range.Font.Bold = 0;
-                    table.Cell(line + 3, j).Range.Font.Size = 10;
-                    table.Cell(line + 3, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
-                    table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                    table.Cell(line + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
-                }
+                //table.Cell(line + 3, 1).Range.Text = key;
+                //table.Cell(line + 3, 1).Range.Font.Bold = 1;
+                //table.Cell(line + 3, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                //previousRow = line + 3;
+                //for (int j = 2; j < 6; j++)
+                //{
+                //    table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                //    table.Cell(line + 3, j).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
+                //}
 
-                table.Cell(line + 3, 1).Range.Text = key;
-                table.Cell(line + 3, 1).Range.Font.Bold = 1;
-                table.Cell(line + 3, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                previousRow = line + 3;
-                for (int j = 2; j < 6; j++)
-                {
-                    table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                    table.Cell(line + 3, j).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
-                }
-
-                line++;
+                //line++;
+                bool first = true;
                 List<string> names = group_dict[key];
                 foreach (string group_name in names)
                 {
                     table.Cell(line + 2, 3).Range.Rows.Add(oMissing);
-                    for (int j = 1; j < 6; j++)
+                    if (first)
+                    {
+                        if (once)
+                        {
+                            table.Cell(line + 3, 1).Split(1, 2);
+                            float temp_wid = table.Cell(line + 3, 1).Width;
+                            table.Cell(line + 3, 1).Width = temp_wid / 2;
+                            table.Cell(line + 3, 2).Width += temp_wid / 2;
+                            once = false;
+                        }
+                        table.Cell(line + 3, 1).Range.Text = AxisTransfer(key);
+                        table.Cell(line + 3, 1).Range.Font.Bold = 1;
+                        table.Cell(line + 3, 1).Range.Font.Size = 10;
+                        table.Cell(line + 3, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                        table.Cell(line + 3, 1).VerticalAlignment = Word.WdCellVerticalAlignment.wdCellAlignVerticalCenter;
+                        previousRow = line + 3;
+                        first = false;
+                    }else
+                        table.Cell(previousRow, 1).Merge(table.Cell(line + 3, 1));
+                    for (int j = 2; j < 7; j++)
                     {
                         table.Cell(line + 3, j).Range.Font.Bold = 0;
                         table.Cell(line + 3, j).Range.Font.Size = 10;
@@ -105,14 +125,15 @@ namespace HKreporter
                         table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
                         table.Cell(line + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
                     }
-                    table.Cell(line + 3, 1).Range.Text = group_name;
+                    table.Cell(line + 3, 2).Range.Text = group_name;
 
-                    table.Cell(line + 3, 2).Range.Text = string.Format("{0:F2}", (decimal)dr["G" + count.ToString()]);
-                    table.Cell(line + 3, 3).Range.Text = string.Format("{0:F2}", (decimal)rankDR["G" + count.ToString()]);
-                    table.Cell(line + 3, 4).Range.Text = string.Format("{0:F2}", (decimal)totalDR["G" + count.ToString()]);
-                    table.Cell(line + 3, 5).Range.Text = string.Format("{0:F1}", (decimal)dr["PR" + count.ToString()]);
+                    table.Cell(line + 3, 3).Range.Text = string.Format("{0:F2}", (decimal)dr["G" + count.ToString()]);
+                    table.Cell(line + 3, 4).Range.Text = string.Format("{0:F2}", (decimal)rankDR["G" + count.ToString()]);
+                    table.Cell(line + 3, 5).Range.Text = string.Format("{0:F2}", (decimal)totalDR["G" + count.ToString()]);
+                    table.Cell(line + 3, 6).Range.Text = string.Format("{0:F1}", (decimal)dr["PR" + count.ToString()]);
 
-                    table.Cell(previousRow, 1).Merge(table.Cell(line + 3, 1));
+                    
+                    
 
                     decimal score = (decimal)dr["G" + count.ToString()] - (decimal)rankDR["G" + count.ToString()];
                     if (score >= 0.05m)
@@ -123,19 +144,21 @@ namespace HKreporter
                         bad.Add(group_name);
                     else if (score >= 0.01m && score < 0.05m)
                         average.Add(group_name);
+                    
                     line++;
                     count++;
                 }
 
             }
             
-            draw(group, dr,rankDR,totalDR);
+            //draw(group, dr,rankDR,totalDR);
+            draw_horizontal(group, dr, rankDR, totalDR);
             Word.Range dist_rng = oDoc.Bookmarks.get_Item("pic").Range;
             dist_rng.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
             dist_rng.Paste();
 
             if (average.Count == group.Rows.Count)
-                WriteIntoDocument("comment", "您" + Utils.subject + "学科的高中会考成绩为" + rank_name + "。与您相同等级的学生群体相比，您对本学科应掌握的知识点和能力点都达到本等级群体的平均水平。");
+                WriteIntoDocument("comment", "您" + Utils.subject + "学科的高中会考成绩为" + rank_name + "。与您相同等级的学生群体相比，您对本学科应掌握的知识点和能力点都达到本等级群体的平均水平。\n");
             else
             {
                 StringBuilder sb = new StringBuilder("您" + Utils.subject + "学科的高中会考成绩为" + rank_name + "。与您相同等级的学生群体相比，您在");
@@ -176,6 +199,7 @@ namespace HKreporter
                 }
                 if(bad.Count != 0)
                     sb.Append("方面薄弱，需要找出原因，加强这方面的学习和提高。");
+                sb.Append("\n");
                 WriteIntoDocument("comment", sb.ToString());
             }
 
@@ -189,31 +213,53 @@ namespace HKreporter
             previousRow = 1;
             line = 0;
             count = 0;
+            once = true;
             foreach (string key in group_dict.Keys)
             {
-                for (int j = 1; j < 3; j++)
-                {
-                    TH_table.Cell(line + 2, j).Range.Font.Bold = 0;
-                    TH_table.Cell(line + 2, j).Range.Font.Size = 10;
-                    TH_table.Cell(line + 2, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
-                    TH_table.Cell(line + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                    TH_table.Cell(line + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
-                }
-                TH_table.Cell(line + 2, 1).Range.Text = key;
+                //for (int j = 1; j < 3; j++)
+                //{
+                //    TH_table.Cell(line + 2, j).Range.Font.Bold = 0;
+                //    TH_table.Cell(line + 2, j).Range.Font.Size = 10;
+                //    TH_table.Cell(line + 2, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
+                //    TH_table.Cell(line + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                //    TH_table.Cell(line + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+                //}
+                //TH_table.Cell(line + 2, 1).Range.Text = key;
 
-                previousRow = line + 2;
-                TH_table.Cell(line + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                TH_table.Cell(line + 2, 1).Range.Font.Bold = 1;
-                TH_table.Cell(line + 2, 2).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
+                //previousRow = line + 2;
+                //TH_table.Cell(line + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                //TH_table.Cell(line + 2, 1).Range.Font.Bold = 1;
+                //TH_table.Cell(line + 2, 2).Range.Shading.BackgroundPatternColor = Word.WdColor.wdColorGray10;
 
-                if (count < group.Rows.Count - 1)
-                    TH_table.Cell(line + 2, 2).Range.Rows.Add(oMissing);
-                line++;
-
+                //if (count < group.Rows.Count - 1)
+                //    TH_table.Cell(line + 2, 2).Range.Rows.Add(oMissing);
+                //line++;
+                bool first = true;
                 List<string> names = group_dict[key];
                 foreach (string group_name in names)
                 {
-                    for (int j = 1; j < 3; j++)
+                    //TH_table.Cell(line + 1, 2).Range.Rows.Add(oMissing);
+                    if (first)
+                    {
+                        if (once)
+                        {
+                            TH_table.Cell(line + 2, 1).Split(1, 2);
+                            float temp_wid = TH_table.Cell(line + 2, 1).Width;
+                            TH_table.Cell(line + 2, 1).Width = temp_wid / 2;
+                            TH_table.Cell(line + 2, 2).Width += temp_wid / 2;
+                            once = false;
+                        }
+                        TH_table.Cell(line + 2, 1).Range.Text = AxisTransfer(key);
+                        TH_table.Cell(line + 2, 1).Range.Font.Bold = 1;
+                        TH_table.Cell(line + 2, 1).Range.Font.Size = 10;
+                        TH_table.Cell(line + 2, 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                        TH_table.Cell(line + 2, 1).VerticalAlignment = Word.WdCellVerticalAlignment.wdCellAlignVerticalCenter;
+                        previousRow = line + 2;
+                        first = false;
+                    }
+                    else
+                        TH_table.Cell(previousRow, 1).Merge(TH_table.Cell(line + 2, 1));
+                    for (int j = 2; j < 4; j++)
                     {
                         TH_table.Cell(line + 2, j).Range.Font.Bold = 0;
                         TH_table.Cell(line + 2, j).Range.Font.Size = 10;
@@ -221,10 +267,10 @@ namespace HKreporter
                         TH_table.Cell(line + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
                         TH_table.Cell(line + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
                     }
-                    TH_table.Cell(line + 2, 1).Range.Text = group_name;
-                    TH_table.Cell(line + 2, 2).Range.Text = getTH(group.Rows[count]["th"].ToString().Trim());
-                    TH_table.Cell(line + 2, 2).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
-                    TH_table.Cell(previousRow, 1).Merge(TH_table.Cell(line + 2, 1));
+                    TH_table.Cell(line + 2, 2).Range.Text = group_name;
+                    TH_table.Cell(line + 2, 3).Range.Text = getTH(group.Rows[count]["th"].ToString().Trim());
+                    TH_table.Cell(line + 2, 3).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+
 
                     if (count < group.Rows.Count - 1)
                         TH_table.Cell(line + 2, 2).Range.Rows.Add(oMissing);
@@ -233,11 +279,12 @@ namespace HKreporter
                     count++;
                 }
             }
-            string name = "会考成绩_" + dr["studentid"] + ".docx";
+            string name = "会考成绩_" + dr["studentid"];
             string addr = Utils.save_adr + @"\" + name;
-            oDoc.SaveAs(addr, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing);
-            oDoc.Close(oMissing, oMissing, oMissing);
-            oWord.Quit(oMissing, oMissing, oMissing);
+            object fileformat = Microsoft.Office.Interop.Word.WdSaveFormat.wdFormatPDF;
+            oDoc.SaveAs(addr, fileformat, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing, oMissing);
+            oDoc.Close(false, oMissing, oMissing);
+            oWord.Quit(false, oMissing, oMissing);
         }
         public string getPercent(int num, int total)
         {
@@ -288,19 +335,77 @@ namespace HKreporter
             table.Cell(2, 2).Range.Rows.Add(oMissing);
 
         }
+        public void draw_horizontal(DataTable dt, DataRow basic, DataRow rank, DataRow total)
+        {
+            ZedGraphControl zgc = new ZedGraphControl();
+            GraphPane myPane = zgc.GraphPane;
+            zgc.Width = 650;
+            zgc.Height = 600;
 
+            List<double[]> data = new List<double[]>();
+            string[] ylabels = new string[dt.Rows.Count];
+            for (int i = 0; i < dt.Rows.Count; i++)
+                ylabels[i] = dt.Rows[dt.Rows.Count - i - 1]["tz"].ToString().Trim();
+
+            AddHorizontalData(basic, data, dt.Rows.Count);
+            AddHorizontalData(rank, data, dt.Rows.Count);
+            AddHorizontalData(total, data, dt.Rows.Count);
+
+            AddHorizontalCurve(data[0], "本人平均得分率", ref myPane, SymbolType.Diamond, Color.Red);
+            AddHorizontalCurve(data[1], "同等级平均得分率", ref myPane, SymbolType.Square, Color.Blue);
+            AddHorizontalCurve(data[2], "总体平均得分率", ref myPane, SymbolType.Triangle, Color.DarkGreen);
+
+            myPane.YAxis.Scale.TextLabels = ylabels;
+            myPane.YAxis.Scale.FontSpec.Size = 12;
+            myPane.YAxis.Title.Text = "";
+            myPane.YAxis.Type = AxisType.Text;
+            myPane.YAxis.Scale.Align = AlignP.Inside;
+
+            myPane.XAxis.Title.Text = "得分率";
+            myPane.Title.Text = "";
+
+            myPane.YAxis.Scale.Max = dt.Rows.Count + 1;
+            myPane.YAxis.Scale.MajorStep = 1;
+            myPane.XAxis.Scale.Max = 1.0;
+            myPane.XAxis.Scale.MajorStep = 0.5;
+            myPane.XAxis.Scale.Min = 0;
+            myPane.YAxis.MinorTic.IsAllTics = false;
+            myPane.XAxis.MinorTic.IsAllTics = false;
+            myPane.YAxis.MajorTic.IsOpposite = false;
+            myPane.XAxis.MajorTic.IsOpposite = false;
+
+            myPane.Legend.IsVisible = true;
+            myPane.Legend.Position = LegendPos.BottomCenter;
+            myPane.Legend.FontSpec.Size = 12;
+
+            myPane.Title.IsVisible = true;
+            myPane.Chart.Fill = new Fill(Color.White);
+            zgc.AxisChange();
+            Bitmap sourceBitmap = new Bitmap(zgc.Width, zgc.Height, System.Drawing.Imaging.PixelFormat.Format48bppRgb);
+            zgc.DrawToBitmap(sourceBitmap, new Rectangle(0, 0, zgc.Width, zgc.Height));
+            //Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
+            Clipboard.Clear();
+            Clipboard.SetImage(sourceBitmap);
+        }
         public void draw(DataTable dt, DataRow basic, DataRow rank, DataRow total)
         {
             ZedGraphControl zgc = new ZedGraphControl();
             GraphPane myPane = zgc.GraphPane;
             zgc.Width = 590;
-            zgc.Height = 300;
+            //zgc.Height = 450;
+
             List<double[]> data = new List<double[]>();
 
             string[] xlabels = new string[dt.Rows.Count];
+            int tz_name_max = 0;
             for (int i = 0; i < dt.Rows.Count; i++)
-                xlabels[i] = AxisTransfer(dt.Rows[i]["tz"].ToString().Trim());
-
+            {
+                string tz_name = dt.Rows[i]["tz"].ToString().Trim();
+                if (tz_name.Length > tz_name_max)
+                    tz_name_max = tz_name.Length;
+                xlabels[i] = AxisTransfer(tz_name);
+            }
+            zgc.Height = 300 + tz_name_max * 15;
             AddData(basic, data, dt.Rows.Count);
             AddData(rank, data, dt.Rows.Count);
             AddData(total, data, dt.Rows.Count);
@@ -310,9 +415,12 @@ namespace HKreporter
             AddCurve(data[2], "总体平均得分率", ref myPane, SymbolType.Triangle, Color.DarkGreen);
 
             myPane.XAxis.Scale.TextLabels = xlabels;
+            myPane.XAxis.Scale.FontSpec.Size = 12;
             //myPane.XAxis.Scale.FontSpec.Angle = 90;
             myPane.XAxis.Type = AxisType.Text;
-            myPane.XAxis.Scale.FontSpec.Size = 18;
+            myPane.XAxis.Scale.Align = AlignP.Inside;
+            //myPane.XAxis.Scale.AlignH = AlignH.Left;
+            myPane.IsFontsScaled = false;
             myPane.XAxis.Title.Text = "";
             myPane.YAxis.Title.Text = AxisTransfer("得分率");
             myPane.YAxis.Title.FontSpec.Angle = 90;
@@ -331,7 +439,7 @@ namespace HKreporter
 
             myPane.Legend.IsVisible = true;
             myPane.Legend.Position = LegendPos.BottomCenter;
-            myPane.Legend.FontSpec.Size = 15;
+            myPane.Legend.FontSpec.Size = 12;
 
             myPane.Title.IsVisible = true;
             myPane.Chart.Fill = new Fill(Color.White);
@@ -353,9 +461,32 @@ namespace HKreporter
             list.Add(temp);
 
         }
+        public void AddHorizontalData(DataRow dr, List<double[]> list, int count)
+        {
+            double[] temp = new double[count];
+            for (int i = 0; i < count; i++)
+            {
+                temp[count - i - 1] = Convert.ToDouble(dr["G" + (i + 1).ToString()]);
+            }
+
+            list.Add(temp);
+
+        }
+
         public void AddCurve(double[] data, string name, ref GraphPane pane, SymbolType type, Color color)
         {
             LineItem myCurve = pane.AddCurve(name, null, data, color, type);
+            myCurve.Line.IsVisible = false;
+            myCurve.Symbol.Size = 12;
+            myCurve.Symbol.Fill = new Fill(color);
+        }
+
+        public void AddHorizontalCurve(double[] data, string name, ref GraphPane pane, SymbolType type, Color color)
+        {
+            double[] ydata = new double[data.Length];
+            for (int i = 0; i < data.Length; i++)
+                ydata[i] = i + 1;
+            LineItem myCurve = pane.AddCurve(name, data, ydata, color, type);
             myCurve.Line.IsVisible = false;
             myCurve.Symbol.Size = 12;
             myCurve.Symbol.Fill = new Fill(color);
@@ -376,15 +507,18 @@ namespace HKreporter
                             sb.Append(names[i]);
                             break;
                         }
+                        
                         sb.Append(name[i]);
                         i++;
                     }
-                    sb.Append("\n");
+                    if (i != names.Length - 1)
+                        sb.Append("\n");
                 }
                 else
                 {
                     sb.Append(names[i]);
-                    sb.Append("\n");
+                    if (i != names.Length - 1)
+                        sb.Append("\n");
                 }
 
             }

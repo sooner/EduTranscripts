@@ -244,7 +244,7 @@
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(35, 12);
             this.label10.TabIndex = 23;
-            this.label10.Text = "及格:";
+            this.label10.Text = "合格:";
             // 
             // well
             // 
