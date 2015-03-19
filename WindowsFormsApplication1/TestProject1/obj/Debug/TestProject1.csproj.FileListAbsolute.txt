@@ -30,3 +30,4 @@ D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\TestProject1\b
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\TestProject1\obj\Debug\ResolveAssemblyReference.cache
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\TestProject1\obj\Debug\TestProject1.dll
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\TestProject1\obj\Debug\TestProject1.pdb
+D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\TestProject1\bin\Debug\Ionic.Zip.dll

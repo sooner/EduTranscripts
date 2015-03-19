@@ -150,8 +150,8 @@ namespace HKreporter
                 }
 
             }
-            
-            //draw(group, dr,rankDR,totalDR);
+
+            //draw(group, dr, rankDR, totalDR);
             draw_horizontal(group, dr, rankDR, totalDR);
             Word.Range dist_rng = oDoc.Bookmarks.get_Item("pic").Range;
             dist_rng.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
@@ -339,7 +339,7 @@ namespace HKreporter
         {
             ZedGraphControl zgc = new ZedGraphControl();
             GraphPane myPane = zgc.GraphPane;
-            zgc.Width = 650;
+            zgc.Width = 680;
             zgc.Height = 600;
 
             List<double[]> data = new List<double[]>();
@@ -351,9 +351,12 @@ namespace HKreporter
             AddHorizontalData(rank, data, dt.Rows.Count);
             AddHorizontalData(total, data, dt.Rows.Count);
 
-            AddHorizontalCurve(data[0], "本人平均得分率", ref myPane, SymbolType.Diamond, Color.Red);
-            AddHorizontalCurve(data[1], "同等级平均得分率", ref myPane, SymbolType.Square, Color.Blue);
-            AddHorizontalCurve(data[2], "总体平均得分率", ref myPane, SymbolType.Triangle, Color.DarkGreen);
+            AddHorizontalBar(data[0], "本人平均得分率", ref myPane, SymbolType.Diamond, Color.Red, 3);
+            AddHorizontalCurve(data[1], "同等级平均得分率", ref myPane, SymbolType.Square, Color.Blue, 2);
+            AddHorizontalCurve(data[2], "总体平均得分率", ref myPane, SymbolType.Triangle, Color.DarkGreen, 1);
+
+            myPane.CurveList.Sort(new CurveItemTagComparer());
+            zgc.Refresh();
 
             myPane.YAxis.Scale.TextLabels = ylabels;
             myPane.YAxis.Scale.FontSpec.Size = 12;
@@ -375,8 +378,8 @@ namespace HKreporter
             myPane.XAxis.MajorTic.IsOpposite = false;
 
             myPane.Legend.IsVisible = true;
-            myPane.Legend.Position = LegendPos.BottomCenter;
-            myPane.Legend.FontSpec.Size = 12;
+            myPane.Legend.Position = LegendPos.Bottom;
+            myPane.Legend.FontSpec.Size = 9;
 
             myPane.Title.IsVisible = true;
             myPane.Chart.Fill = new Fill(Color.White);
@@ -391,6 +394,7 @@ namespace HKreporter
         {
             ZedGraphControl zgc = new ZedGraphControl();
             GraphPane myPane = zgc.GraphPane;
+            
             zgc.Width = 590;
             //zgc.Height = 450;
 
@@ -410,19 +414,22 @@ namespace HKreporter
             AddData(rank, data, dt.Rows.Count);
             AddData(total, data, dt.Rows.Count);
 
-            AddCurve(data[0], "本人平均得分率", ref myPane, SymbolType.Diamond, Color.Red);
-            AddCurve(data[1], "同等级平均得分率", ref myPane, SymbolType.Square, Color.Blue);
-            AddCurve(data[2], "总体平均得分率", ref myPane, SymbolType.Triangle, Color.DarkGreen);
+            AddBar(data[0], "本人平均得分率", ref myPane, SymbolType.Diamond, Color.Red, 3);
+            AddCurve(data[1], "同等级平均得分率", ref myPane, SymbolType.Square, Color.Blue, 2);
+            AddCurve(data[2], "总体平均得分率", ref myPane, SymbolType.Triangle, Color.DarkGreen, 1);
 
+            myPane.CurveList.Sort(new CurveItemTagComparer());
+            zgc.Refresh();
             myPane.XAxis.Scale.TextLabels = xlabels;
             myPane.XAxis.Scale.FontSpec.Size = 12;
             //myPane.XAxis.Scale.FontSpec.Angle = 90;
             myPane.XAxis.Type = AxisType.Text;
             myPane.XAxis.Scale.Align = AlignP.Inside;
             //myPane.XAxis.Scale.AlignH = AlignH.Left;
-            myPane.IsFontsScaled = false;
+            myPane.IsFontsScaled = true;
             myPane.XAxis.Title.Text = "";
             myPane.YAxis.Title.Text = AxisTransfer("得分率");
+            myPane.YAxis.Title.FontSpec.Size = 12;
             myPane.YAxis.Title.FontSpec.Angle = 90;
             
             myPane.Title.Text = "";
@@ -438,17 +445,26 @@ namespace HKreporter
             myPane.XAxis.MajorTic.IsOpposite = false;
 
             myPane.Legend.IsVisible = true;
-            myPane.Legend.Position = LegendPos.BottomCenter;
-            myPane.Legend.FontSpec.Size = 12;
+            myPane.Legend.Position = LegendPos.BottomFlushLeft;
+            myPane.Legend.FontSpec.Size = 11;
 
             myPane.Title.IsVisible = true;
             myPane.Chart.Fill = new Fill(Color.White);
             zgc.AxisChange();
-            Bitmap sourceBitmap = new Bitmap(zgc.Width, zgc.Height, System.Drawing.Imaging.PixelFormat.Format48bppRgb);
-            zgc.DrawToBitmap(sourceBitmap, new Rectangle(0, 0, zgc.Width, zgc.Height));
+            //Bitmap sourceBitmap = new Bitmap(zgc.Width, zgc.Height, System.Drawing.Imaging.PixelFormat.Format48bppRgb);
+
+            Bitmap sourceBitmap = myPane.GetImage(zgc.Width, zgc.Height, 1000);
+            //zgc.DrawToBitmap(sourceBitmap, new Rectangle(0, 0, zgc.Width, zgc.Height));
             //Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
             Clipboard.Clear();
             Clipboard.SetImage(sourceBitmap);
+        }
+        class CurveItemTagComparer : IComparer<CurveItem>
+        {
+            public int Compare(CurveItem x, CurveItem y)
+            {
+                return ((int)x.Tag).CompareTo((int)y.Tag);
+            }
         }
         public void AddData(DataRow dr, List<double[]> list, int count)
         {
@@ -473,24 +489,55 @@ namespace HKreporter
 
         }
 
-        public void AddCurve(double[] data, string name, ref GraphPane pane, SymbolType type, Color color)
+        public void AddCurve(double[] data, string name, ref GraphPane pane, SymbolType type, Color color, int tag)
         {
             LineItem myCurve = pane.AddCurve(name, null, data, color, type);
             myCurve.Line.IsVisible = false;
-            myCurve.Symbol.Size = 12;
+            myCurve.Symbol.Size = 10;
             myCurve.Symbol.Fill = new Fill(color);
+
+            myCurve.Tag = tag;
         }
 
-        public void AddHorizontalCurve(double[] data, string name, ref GraphPane pane, SymbolType type, Color color)
+        public void AddHorizontalCurve(double[] data, string name, ref GraphPane pane, SymbolType type, Color color, int tag)
         {
             double[] ydata = new double[data.Length];
             for (int i = 0; i < data.Length; i++)
                 ydata[i] = i + 1;
             LineItem myCurve = pane.AddCurve(name, data, ydata, color, type);
+            
             myCurve.Line.IsVisible = false;
-            myCurve.Symbol.Size = 12;
+            myCurve.Symbol.Size = 10;
             myCurve.Symbol.Fill = new Fill(color);
+
+            myCurve.Tag = tag;
         }
+        public void AddBar(double[] data, string name, ref GraphPane pane, SymbolType type, Color color, int tag)
+        {
+            double[] ydata = new double[data.Length];
+            for (int i = 0; i < data.Length; i++)
+                ydata[i] = i + 1;
+            PointPairList ppBar = new PointPairList(ydata, data);
+            BarItem myCurve1 = pane.AddBar(name, ppBar,color);
+            myCurve1.Bar.Fill = new Fill(Color.FromArgb(0, 255, 255), Color.FromArgb(0, 255, 255));
+            myCurve1.Tag = tag;
+        }
+        public void AddHorizontalBar(double[] data, string name, ref GraphPane pane, SymbolType type, Color color, int tag)
+        {
+            double[] ydata = new double[data.Length];
+            for (int i = 0; i < data.Length; i++)
+                ydata[i] = i + 1;
+            //LineItem myCurve = pane.AddCurve(name, data, ydata, color, type);
+            pane.BarSettings.Base = BarBase.Y;
+            PointPairList ppBar = new PointPairList(data, ydata);
+            BarItem myCurve1 = pane.AddBar(name, ppBar, color);
+            myCurve1.Bar.Fill = new Fill(Color.FromArgb(0, 255, 255), Color.FromArgb(0, 255, 255));
+            myCurve1.Tag = tag;
+            //myCurve.Line.IsVisible = false;
+            //myCurve.Symbol.Size = 12;
+            //myCurve.Symbol.Fill = new Fill(color);
+        }
+
 
         public static string AxisTransfer(string name)
         {
