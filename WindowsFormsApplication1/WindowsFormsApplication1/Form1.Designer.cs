@@ -62,6 +62,9 @@
             this.cancel = new System.Windows.Forms.Button();
             this.label13 = new System.Windows.Forms.Label();
             this.isVisible = new System.Windows.Forms.CheckBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.zipname = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pass)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.well)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.excellent)).BeginInit();
@@ -208,6 +211,7 @@
             this.stu_id_end.Size = new System.Drawing.Size(205, 21);
             this.stu_id_end.TabIndex = 17;
             this.stu_id_end.Text = "0";
+            this.stu_id_end.TextChanged += new System.EventHandler(this.stu_id_end_TextChanged);
             // 
             // label7
             // 
@@ -337,14 +341,14 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Location = new System.Drawing.Point(14, 273);
+            this.progressBar1.Location = new System.Drawing.Point(14, 300);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(271, 23);
             this.progressBar1.TabIndex = 30;
             // 
             // run_button
             // 
-            this.run_button.Location = new System.Drawing.Point(304, 273);
+            this.run_button.Location = new System.Drawing.Point(304, 300);
             this.run_button.Name = "run_button";
             this.run_button.Size = new System.Drawing.Size(86, 23);
             this.run_button.TabIndex = 31;
@@ -354,7 +358,7 @@
             // 
             // cancel
             // 
-            this.cancel.Location = new System.Drawing.Point(396, 273);
+            this.cancel.Location = new System.Drawing.Point(396, 300);
             this.cancel.Name = "cancel";
             this.cancel.Size = new System.Drawing.Size(86, 23);
             this.cancel.TabIndex = 32;
@@ -365,7 +369,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(16, 300);
+            this.label13.Location = new System.Drawing.Point(21, 335);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(0, 12);
             this.label13.TabIndex = 33;
@@ -380,11 +384,39 @@
             this.isVisible.Text = "文档可视";
             this.isVisible.UseVisualStyleBackColor = true;
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(23, 268);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(53, 12);
+            this.label14.TabIndex = 35;
+            this.label14.Text = "打包名：";
+            // 
+            // zipname
+            // 
+            this.zipname.Location = new System.Drawing.Point(85, 264);
+            this.zipname.Name = "zipname";
+            this.zipname.Size = new System.Drawing.Size(100, 21);
+            this.zipname.TabIndex = 36;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(186, 268);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(29, 12);
+            this.label15.TabIndex = 37;
+            this.label15.Text = ".zip";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(499, 315);
+            this.ClientSize = new System.Drawing.Size(499, 356);
+            this.Controls.Add(this.label15);
+            this.Controls.Add(this.zipname);
+            this.Controls.Add(this.label14);
             this.Controls.Add(this.isVisible);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.cancel);
@@ -466,6 +498,9 @@
         private System.Windows.Forms.Button cancel;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.CheckBox isVisible;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox zipname;
+        private System.Windows.Forms.Label label15;
     }
 }
 

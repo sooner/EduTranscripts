@@ -23,6 +23,7 @@ namespace HKreporter
         public static decimal fullmark;
         public static string CurrentDirectory = System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
         public static bool isVisible = false;
+        public static string zipname;
 
         
 

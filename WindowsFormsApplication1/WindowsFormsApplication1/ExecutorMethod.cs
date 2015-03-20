@@ -67,8 +67,8 @@ namespace HKreporter
                     if (Utils.save_adr[Utils.save_adr.Length - 1] != Path.DirectorySeparatorChar)
                         Utils.save_adr += Path.DirectorySeparatorChar;
                     
-                    string dic_name = DateTime.Now.ToString("yyMMddHHmmssff");
-                    Utils.save_adr += dic_name;
+                    
+                    Utils.save_adr += Utils.zipname;
                     Utils.save_adr += Path.DirectorySeparatorChar;
                     if (!Directory.Exists(Utils.save_adr))
                         Directory.CreateDirectory(Utils.save_adr);
@@ -76,7 +76,7 @@ namespace HKreporter
                     {
                         wc.create_word(cal.total, dr, group.dt, group.groups_group);
                     }
-                    Utils.zip(Utils.save_adr, dic_name);
+                    Utils.zip(Utils.save_adr, Utils.zipname);
                 }
             //}
             //catch (System.Threading.ThreadAbortException e)

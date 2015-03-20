@@ -19,6 +19,8 @@ namespace HKreporter
         {
             InitializeComponent();
             save_adr.Text = System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
+            stu_id_start.Text = "17121010586";
+            zipname.Enabled = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -87,6 +89,8 @@ namespace HKreporter
             Utils.fullmark = fullmark.Value;
             Utils.save_adr = save_adr.Text;
             Utils.isVisible = isVisible.Checked;
+
+            Utils.zipname = zipname.Text;
 
             thread = new Thread(new ThreadStart(start.data_process));
             thread.IsBackground = true;
@@ -216,6 +220,25 @@ namespace HKreporter
                 cancel.Enabled = false;
                 run_button.Enabled = true;
             }
+        }
+
+        private void stu_id_end_TextChanged(object sender, EventArgs e)
+        {
+            int result;
+            if (Int32.TryParse(stu_id_end.Text, out result))
+            {
+                if (result > 0)
+                {
+                    zipname.Enabled = true;
+                    zipname.Text = DateTime.Now.ToString("yyMMddHHmmss");
+                }
+                else
+                {
+                    zipname.Enabled = false;
+                    zipname.Text = "";
+                }
+            }
+            
         }
       
     }

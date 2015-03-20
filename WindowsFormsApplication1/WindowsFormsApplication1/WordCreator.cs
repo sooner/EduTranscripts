@@ -359,12 +359,14 @@ namespace HKreporter
             zgc.Refresh();
 
             myPane.YAxis.Scale.TextLabels = ylabels;
-            myPane.YAxis.Scale.FontSpec.Size = 12;
+            myPane.YAxis.Scale.FontSpec.Size = 11;
             myPane.YAxis.Title.Text = "";
             myPane.YAxis.Type = AxisType.Text;
             myPane.YAxis.Scale.Align = AlignP.Inside;
 
             myPane.XAxis.Title.Text = "得分率";
+            myPane.XAxis.Title.FontSpec.Size = 11;
+            myPane.XAxis.Scale.FontSpec.Size = 11;
             myPane.Title.Text = "";
 
             myPane.YAxis.Scale.Max = dt.Rows.Count + 1;
@@ -507,7 +509,7 @@ namespace HKreporter
             LineItem myCurve = pane.AddCurve(name, data, ydata, color, type);
             
             myCurve.Line.IsVisible = false;
-            myCurve.Symbol.Size = 10;
+            myCurve.Symbol.Size = 9;
             myCurve.Symbol.Fill = new Fill(color);
 
             myCurve.Tag = tag;

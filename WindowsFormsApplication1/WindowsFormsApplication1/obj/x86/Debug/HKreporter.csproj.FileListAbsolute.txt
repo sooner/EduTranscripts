@@ -31,6 +31,7 @@ D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\WindowsFormsApp
 D:\project\EduHKreporter\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.pdb
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.pdb
+D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\Ionic.Zip.dll
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\ZedGraph.dll
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\obj\x86\Debug\ResolveAssemblyReference.cache
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\obj\x86\Debug\HKreporter.csproj.ResolveComReference.cache
@@ -40,4 +41,3 @@ D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsAp
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\obj\x86\Debug\GenerateResource.write.1.tlog
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\obj\x86\Debug\WindowsFormsApplication1.exe
 D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\obj\x86\Debug\WindowsFormsApplication1.pdb
-D:\project\EduTranscripts\EduTranscripts\WindowsFormsApplication1\WindowsFormsApplication1\bin\Debug\Ionic.Zip.dll
