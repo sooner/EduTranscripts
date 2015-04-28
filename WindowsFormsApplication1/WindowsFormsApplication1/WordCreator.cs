@@ -15,7 +15,7 @@ namespace HKreporter
         Word._Application oWord;
         Word._Document oDoc;
         object oMissing = System.Reflection.Missing.Value;
-        public void create_word(DataTable dt, DataRow dr, DataTable group, Dictionary<string, List<string>> group_dict)
+        public void create_word(DataTable dt, DataRow dr, DataTable group, Dictionary<string, List<string>> group_dict, DataRow basic_dr)
         {
             object filepath = @Utils.CurrentDirectory + @"\template.doc";
             oWord = new Word.Application();
@@ -26,6 +26,8 @@ namespace HKreporter
             WriteIntoDocument("stu_id", dr["studentid"].ToString().Trim());
             WriteIntoDocument("date", Utils.date.Trim());
             WriteIntoDocument("totalmark", string.Format("{0:F1}", (decimal)dr["totalmark"]));
+            WriteIntoDocument("name", basic_dr["studentname"].ToString().Trim());
+            WriteIntoDocument("school", basic_dr["schoolname"].ToString().Trim());
 
             DataRow rankDR = null;
             DataRow totalDR = dt.Rows.Find("total");
@@ -69,6 +71,7 @@ namespace HKreporter
             List<string> bad = new List<string>();
             List<string> average = new List<string>();
             bool once = true;
+            float row_height = 0;
             foreach(string key in group_dict.Keys)
             {
                 //table.Cell(line + 2, 3).Range.Rows.Add(oMissing);
@@ -95,11 +98,13 @@ namespace HKreporter
                 //line++;
                 bool first = true;
                 List<string> names = group_dict[key];
+                int name_count = names.Count;
                 foreach (string group_name in names)
                 {
                     table.Cell(line + 2, 3).Range.Rows.Add(oMissing);
                     if (first)
                     {
+
                         if (once)
                         {
                             table.Cell(line + 3, 1).Split(1, 2);
@@ -115,15 +120,25 @@ namespace HKreporter
                         table.Cell(line + 3, 1).VerticalAlignment = Word.WdCellVerticalAlignment.wdCellAlignVerticalCenter;
                         previousRow = line + 3;
                         first = false;
-                    }else
+
+                        int char_count = key.ToCharArray().Length;
+                        if (char_count > name_count)
+                            row_height = (char_count * 16f) / name_count;
+                        else
+                            row_height = 16f;
+                    }
+                    else
+                    {
                         table.Cell(previousRow, 1).Merge(table.Cell(line + 3, 1));
+                        
+                    }
                     for (int j = 2; j < 7; j++)
                     {
                         table.Cell(line + 3, j).Range.Font.Bold = 0;
                         table.Cell(line + 3, j).Range.Font.Size = 10;
                         table.Cell(line + 3, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
                         table.Cell(line + 3, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                        table.Cell(line + 3, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+                        table.Cell(line + 3, j).SetHeight(row_height, Word.WdRowHeightRule.wdRowHeightExactly);
                     }
                     table.Cell(line + 3, 2).Range.Text = group_name;
 
@@ -214,6 +229,7 @@ namespace HKreporter
             line = 0;
             count = 0;
             once = true;
+            row_height = 0;
             foreach (string key in group_dict.Keys)
             {
                 //for (int j = 1; j < 3; j++)
@@ -236,6 +252,7 @@ namespace HKreporter
                 //line++;
                 bool first = true;
                 List<string> names = group_dict[key];
+                int name_count = names.Count;
                 foreach (string group_name in names)
                 {
                     //TH_table.Cell(line + 1, 2).Range.Rows.Add(oMissing);
@@ -256,6 +273,12 @@ namespace HKreporter
                         TH_table.Cell(line + 2, 1).VerticalAlignment = Word.WdCellVerticalAlignment.wdCellAlignVerticalCenter;
                         previousRow = line + 2;
                         first = false;
+
+                        int char_count = key.ToCharArray().Length;
+                        if (char_count > name_count)
+                            row_height = (char_count * 16f) / name_count;
+                        else
+                            row_height = 16f;
                     }
                     else
                         TH_table.Cell(previousRow, 1).Merge(TH_table.Cell(line + 2, 1));
@@ -265,7 +288,7 @@ namespace HKreporter
                         TH_table.Cell(line + 2, j).Range.Font.Size = 10;
                         TH_table.Cell(line + 2, j).Range.Shading.BackgroundPatternColor = table.Cell(1, 1).Range.Shading.BackgroundPatternColor;
                         TH_table.Cell(line + 2, j).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                        TH_table.Cell(line + 2, j).SetHeight(0.48f, Word.WdRowHeightRule.wdRowHeightAtLeast);
+                        TH_table.Cell(line + 2, j).SetHeight(row_height, Word.WdRowHeightRule.wdRowHeightExactly);
                     }
                     TH_table.Cell(line + 2, 2).Range.Text = group_name;
                     TH_table.Cell(line + 2, 3).Range.Text = getTH(group.Rows[count]["th"].ToString().Trim());

@@ -18,16 +18,17 @@ namespace HKreporter
         Calculate cal;
         public void pre_process(Form1 form)
         {
-            //try
-            //{
+            try
+            {
                 ans = new Excel_process(Utils.standard_adr);
                 ans.run(true);
-                form.ShowPro(10, 1);
+                form.ShowPro(10, 1); ;
                 group = new Excel_process(Utils.groups_adr);
                 group.run(false);
                 form.ShowPro(20, 2);
-                db = new HK_database(ans.dt, group.dt);
+                db = new HK_database(form, ans.dt, group.dt);
                 db.DBF_data_process(Utils.dbf_adr);
+                db._basic_data.PrimaryKey = new DataColumn[] {db._basic_data.Columns["studentid"] };
                 form.ShowPro(50, 3);
                 if (Utils.stu_id_end.Equals("0"))
                 {
@@ -58,7 +59,8 @@ namespace HKreporter
                 if (Utils.stu_id_end.Equals("0"))
                 {
                     DataRow dr = FindRow(Utils.stu_id_start, cal._data);
-                    wc.create_word(cal.total, dr, group.dt, group.groups_group);
+                    DataRow basic_dr = FindRow(Utils.stu_id_start, db._basic_data);
+                    wc.create_word(cal.total, dr, group.dt, group.groups_group, basic_dr);
                 }
                 else
                 {
@@ -74,18 +76,19 @@ namespace HKreporter
                         Directory.CreateDirectory(Utils.save_adr);
                     foreach (DataRow dr in SearchIndex)
                     {
-                        wc.create_word(cal.total, dr, group.dt, group.groups_group);
+                        DataRow basic_dr = FindRow(dr["studentid"].ToString().Trim(), db._basic_data);
+                        wc.create_word(cal.total, dr, group.dt, group.groups_group, basic_dr);
                     }
                     Utils.zip(Utils.save_adr, Utils.zipname);
                 }
-            //}
-            //catch (System.Threading.ThreadAbortException e)
-            //{
-            //}
-            //catch (Exception e)
-            //{
-            //    form.CheckStuID(2, e.Message.ToString());
-            //}
+            }
+            catch (System.Threading.ThreadAbortException e)
+            {
+            }
+            catch (Exception e)
+            {
+                form.CheckStuID(2, e.Message.ToString());
+            }
         }
         public DataRow FindRow(string stu_id, DataTable dt)
         {

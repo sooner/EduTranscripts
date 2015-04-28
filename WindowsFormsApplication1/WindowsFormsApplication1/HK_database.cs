@@ -27,15 +27,43 @@ namespace HKreporter
         string path;
         string filename;
         string filext;
+        Form1 _form;
 
         List<List<string>> name_list;
         OleDbConnection dbfConnection;
 
-        public HK_database(DataTable standard_ans, DataTable groups)
+        public HK_database(Form1 form, DataTable standard_ans, DataTable groups)
         {
+            _form = form;
             _groups = groups;
             _standard_ans = standard_ans;
-            _standard_ans.PrimaryKey = new DataColumn[] { _standard_ans.Columns["th"] };
+            try
+            {
+                _standard_ans.PrimaryKey = new DataColumn[] { _standard_ans.Columns["th"] };
+            }
+            catch (Exception e)
+            {
+                if (e.Message.ToString().Equals("These columns don't currently have unique values."))
+                {
+                    List<string> result = standard_ans.AsEnumerable().GroupBy(c => c.Field<string>("th")).Select(c => new
+                    {
+                        th = c.Key,
+                        count = c.Count()
+                    }).Where(c => c.count > 1).Select(c => c.th).ToList();
+
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < result.Count; )
+                    {
+                        sb.Append(result[i]);
+                        i++;
+                        if (i != result.Count)
+                            sb.Append(" ");
+                    }
+                    throw new ArgumentException("标准答案中" + sb.ToString() + "重复！");
+                }
+                else
+                    throw e;
+            }
             _basic_data = new DataTable();
             _group_data = new DataTable();
 
@@ -74,10 +102,58 @@ namespace HKreporter
                 return "more than 1 tables";
             DataTable dt = mySet.Tables[0];
             int count = dt.Columns.Count;
+            try
+            {
+                dt.PrimaryKey = new DataColumn[] { dt.Columns["zkzh"] };
+            }
+            catch (Exception e)
+            {
+                if (e.Message.ToString().Equals("These columns don't currently have unique values."))
+                {
+                    List<string> result = dt.AsEnumerable().GroupBy(c => c.Field<string>("zkzh")).Select(c => new
+                    {
+                        th = c.Key,
+                        count = c.Count()
+                    }).Where(c => c.count > 1).Select(c => c.th).ToList();
+
+                    StringBuilder sb = new StringBuilder();
+                    for (int j = 0; j < result.Count; )
+                    {
+                        sb.Append(result[j]);
+                        j++;
+                        if (j != result.Count)
+                            sb.Append(" ");
+                    }
+                    _form.CheckStuID(3, "数据库文件中准考证号为" + sb.ToString() + "重复！");
+                    foreach (string id in result)
+                    {
+                        var rows = dt.Select("zkzh = '" + id + "'");
+                        bool temp_first = true;
+                        foreach (var row in rows)
+                        {
+                            if (temp_first)
+                            {
+                                temp_first = false;
+                                continue;
+                            }
+                            else
+                                row.Delete();
+                            
+                        }
+
+                    }
+
+                    dt.AcceptChanges();
+                }
+                else
+                    throw e;
+            }
             int i;
             DataTable basic_data = new DataTable();
             basic_data.Columns.Add("studentid", System.Type.GetType("System.String"));
             basic_data.Columns.Add("schoolcode", System.Type.GetType("System.String"));
+            basic_data.Columns.Add("studentname", typeof(string));
+            basic_data.Columns.Add("schoolname", typeof(string));
             basic_data.Columns.Add("totalmark", typeof(decimal));
             //for (i = 0; i < _standard_ans.Rows.Count; i++)
             //    basic_data.Columns.Add("T" + ((string)_standard_ans.Rows[i]["th"]).Trim(), System.Type.GetType("System.Decimal"));
@@ -132,11 +208,15 @@ namespace HKreporter
                     basic_data.Columns.Add("Groups", typeof(string));
                     basic_data.Columns.Add("QX", typeof(string));
                     basic_data.Columns.Add("rank", typeof(string));
+
+                    
                 }
 
                 DataRow newRow = basic_data.NewRow();
-                newRow["studentid"] = dr["bmh"].ToString().Trim();
-                newRow["schoolcode"] = dr["kch"].ToString().Trim();
+                newRow["studentid"] = dr["zkzh"].ToString().Trim();
+                newRow["schoolcode"] = dr["xxdm"].ToString().Trim();
+                newRow["studentname"] = dr["xm"].ToString().Trim();
+                newRow["schoolname"] = dr["xxmc"].ToString().Trim();
                 newRow["totalmark"] = 0m;
                 decimal obj_mark = 0;
                 decimal sub_mark = 0;
@@ -148,7 +228,7 @@ namespace HKreporter
                     {
                         decimal temp_mark = Convert.ToDecimal(single_mark[org_total]);
                         if (temp_mark > Convert.ToDecimal(ans_dr["fs"]))
-                            throw new ArgumentException("第" + (string)ans_dr["th"] + "题满分值小于实际分值！");
+                            throw new ArgumentException("准考证号为" + dr["zkzh"].ToString().Trim() + "的学生第" + (string)ans_dr["th"] + "题满分值小于实际分值！");
                         newRow["T" + (string)ans_dr["th"]] = temp_mark;
                         org_total++;
                         if (!ans_dr["da"].ToString().Trim().Equals(""))
@@ -363,11 +443,11 @@ namespace HKreporter
             foreach (DataRow dr in _basic_data.Rows)
             {
                 DataRow newRow = _group_data.NewRow();
-                newRow["studentid"] = ((string)dr[0]).Trim();
-                newRow["schoolcode"] = ((string)dr[1]).Trim();
+                newRow["studentid"] = ((string)dr["studentid"]).Trim();
+                newRow["schoolcode"] = ((string)dr["schoolcode"]).Trim();
                 newRow["Groups"] = ((string)dr["Groups"]).Trim();
                 newRow["Qx"] = dr["Qx"].ToString().Trim();
-                newRow["totalmark"] = dr[2];
+                newRow["totalmark"] = dr["totalmark"];
                 newRow["PR_total"] = 0;
                 newRow["rank"] = dr["rank"];
                 int j;

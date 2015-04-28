@@ -19,7 +19,7 @@ namespace HKreporter
         {
             InitializeComponent();
             save_adr.Text = System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
-            stu_id_start.Text = "17121010586";
+            //stu_id_start.Text = "17121010586";
             zipname.Enabled = false;
         }
 
@@ -204,6 +204,17 @@ namespace HKreporter
                         ShowPro(100, 5);
                         cancel.Enabled = false;
                         run_button.Enabled = true;
+                        break;
+                    case 3:
+                        MessageBoxButtons deleteButton = MessageBoxButtons.OKCancel;
+                        DialogResult delete_dr = MessageBox.Show(message + "\n删除重复成绩继续？", "是否继续", deleteButton);
+                        if (delete_dr == DialogResult.Cancel)
+                        {
+                            thread.Abort();
+                            ShowPro(100, 5);
+                            cancel.Enabled = false;
+                            run_button.Enabled = true;
+                        }
                         break;
                     default:
                         break;
